@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// UTILS
+@layer utilities {
+  .cus_scrollbar {
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+
+  .table_row {
+    &:not(:last-child) {
+      @apply border-r-2;
+    }
+  }
+
+  .action-checkbox:checked + label {
+    @apply bg-lightPr text-darkPr;
+  }
+
+  .align_td_top {
+    vertical-align: top;
+  }
+}
