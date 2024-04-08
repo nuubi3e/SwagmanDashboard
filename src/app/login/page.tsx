@@ -1,9 +1,9 @@
-import { getSession } from '@/lib/actions/auth.action'
 import LoginForm from './LoginForm'
 import { Log } from '@/lib/logs'
 import { redirect } from 'next/navigation'
 import { Metadata } from 'next'
 import { MustacheLogo, SwagmanLogo } from '@/components/icons/Logos'
+import { getSession } from '@/lib/server/auth'
 
 interface LoginPageProps {
   searchParams: {

@@ -1,6 +1,6 @@
 import RoleRows from '@/components/rows/RoleRows'
-import { getSession } from '@/lib/actions/auth.action'
-import { getRoles } from '@/lib/actions/role.action'
+import { getSession } from '@/lib/server/auth'
+import { getRoles } from '@/lib/server/get-data'
 import React from 'react'
 
 const RoleLoader = async () => {

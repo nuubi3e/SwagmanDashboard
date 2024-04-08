@@ -10,7 +10,7 @@ import { redirect } from 'next/navigation'
 
 type UserId = { id: string }
 
-export const login = async (userData: LoginPayload) => {
+export const login = async (userData: LoginPayload, redirectUrl: string) => {
   try {
     await connectToDB()
 
@@ -40,19 +40,13 @@ export const login = async (userData: LoginPayload) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: true,
     })
-
-    return Response.success({
-      message: 'Login Successfull',
-      data: undefined,
-      statusCode: 200,
-    })
   } catch (err) {
     return Response.error(err)
   }
+  return redirect(redirectUrl)
 }
 
 export const logOut = async () => {
-  await new Promise((res, _) => setTimeout(res, 0))
   cookies().set('auth', '', { expires: new Date(0) })
   redirect('/login')
 }

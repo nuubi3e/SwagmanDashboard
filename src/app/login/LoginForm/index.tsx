@@ -27,12 +27,11 @@ const LoginForm = ({ redirectUrl }: LoginFormProps) => {
   const formSubmitHandler = async (userCred: LoginPayload) => {
     setLogging(true)
     try {
-      const res = await login(userCred)
+      const res = await login(userCred, redirectUrl)
 
-      if (!res.ok) throw new Error(res.message)
+      toast.success('Logged in Successful')
 
-      router.push(redirectUrl)
-      Log.log(res)
+      if (res?.ok && !res.ok) throw new Error(res?.message)
     } catch (err: any) {
       toast.error(err.message)
       setFocus('username')
