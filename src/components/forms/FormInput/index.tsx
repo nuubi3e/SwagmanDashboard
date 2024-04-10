@@ -1,17 +1,17 @@
-'use client'
-import React, { FC, HTMLInputTypeAttribute } from 'react'
-import { FieldErrors, RegisterOptions, UseFormRegister } from 'react-hook-form'
+'use client';
+import React, { FC, HTMLInputTypeAttribute } from 'react';
+import { FieldErrors, RegisterOptions, UseFormRegister } from 'react-hook-form';
 
 interface FormInputProps {
-  register: UseFormRegister<any>
-  id: string
-  required?: boolean
-  title: string
-  errors: FieldErrors
-  validations?: RegisterOptions
-  type: HTMLInputTypeAttribute
-  placeholder?: string
-  maxLength?: number
+  register: UseFormRegister<any>;
+  id: string;
+  required?: boolean;
+  title: string;
+  errors: FieldErrors;
+  validations?: RegisterOptions;
+  type: HTMLInputTypeAttribute;
+  placeholder?: string;
+  maxLength?: number;
 }
 
 const FormInput: FC<FormInputProps> = ({
@@ -31,6 +31,7 @@ const FormInput: FC<FormInputProps> = ({
         {title} {required && <strong className='text-red-500'>*</strong>}
       </label>
       <input
+        autoComplete='off'
         type={type}
         id={id}
         maxLength={maxLength}
@@ -50,7 +51,7 @@ const FormInput: FC<FormInputProps> = ({
         </span>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default FormInput
+export default FormInput;

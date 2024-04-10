@@ -1,44 +1,44 @@
-import { IUserSchema } from './schema.types'
+import { IUserSchema } from './schema.types';
 
 export interface LoginPayload {
-  username: string
-  password: string
+  username: string;
+  password: string;
 }
 
 export interface PermissionPayload {
-  id: string
-  name: string
-  actions: string[]
+  id: string;
+  name: string;
+  actions: string[];
 }
 
 export interface RolePayload {
-  name: string
-  permission?: PermissionPayload[]
+  name: string;
+  permission?: PermissionPayload[];
 }
 
 export interface UserPayload {
-  username: string
-  fullName: string
-  roleId: string
-  password: string
-  displayPic?: string
+  username: string;
+  fullName: string;
+  roleId: string;
+  password: string;
+  displayPic?: string;
 }
 
 export interface CategoryPayload {
-  name: string
+  name: string;
 }
 
 export interface ProductPayload {
-  name: string
-  price: number
-  description: string
-  images: string[]
-  categoryId: string
-  ingredients: IngredientsPayload[]
+  name: string;
+  price: number;
+  description: string;
+  images?: string[];
+  categoryId: string;
+  ingredients: IngredientsPayload[];
 }
 
 export interface IngredientsPayload {
-  id: string
-  name: string
-  description: string
+  id: string;
+  name: string;
+  description: string;
 }

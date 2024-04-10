@@ -1,17 +1,16 @@
-'use client'
-import { Log } from '@/lib/logs'
-import { login } from '@/lib/actions/auth.action'
-import { LoginPayload } from '@/lib/types/payload.types'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
-import { useForm } from 'react-hook-form'
-import toast from 'react-hot-toast'
-import FormInput from '@/components/forms/FormInput'
-import { error } from 'console'
-import { LuLoader } from 'react-icons/lu'
+'use client';
+import { login } from '@/lib/actions/auth.action';
+import { LoginPayload } from '@/lib/types/payload.types';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import FormInput from '@/components/forms/FormInput';
+import { LuLoader } from 'react-icons/lu';
+import { CusToast } from '@/Providers/ToastProvider';
 
 interface LoginFormProps {
-  redirectUrl: string
+  redirectUrl: string;
 }
 
 const LoginForm = ({ redirectUrl }: LoginFormProps) => {
@@ -20,25 +19,26 @@ const LoginForm = ({ redirectUrl }: LoginFormProps) => {
     handleSubmit,
     setFocus,
     formState: { errors },
-  } = useForm<LoginPayload>()
-  const [logging, setLogging] = useState(false)
-  const router = useRouter()
+  } = useForm<LoginPayload>();
+  const [logging, setLogging] = useState(false);
+  const router = useRouter();
 
   const formSubmitHandler = async (userCred: LoginPayload) => {
-    setLogging(true)
+    setLogging(true);
     try {
-      const res = await login(userCred, redirectUrl)
+      const res = await login(userCred, redirectUrl);
 
-      toast.success('Logged in Successful')
+      if (!res) return toast.success('Welcome Back');
 
-      if (res?.ok && !res.ok) throw new Error(res?.message)
+      if (!res?.ok) throw new Error(res?.message);
     } catch (err: any) {
-      toast.error(err.message)
-      setFocus('username')
+      console.log('IN CATCH:', err);
+      toast.error(err.message);
+      setFocus('username');
     } finally {
-      setLogging(false)
+      setLogging(false);
     }
-  }
+  };
 
   return (
     <form
@@ -71,7 +71,7 @@ const LoginForm = ({ redirectUrl }: LoginFormProps) => {
         {logging ? <LuLoader className='animate-spin text-2xl' /> : 'Login'}
       </button>
     </form>
-  )
-}
+  );
+};
 
-export default LoginForm
+export default LoginForm;

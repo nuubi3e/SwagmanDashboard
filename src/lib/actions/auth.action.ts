@@ -11,6 +11,8 @@ import { redirect } from 'next/navigation'
 type UserId = { id: string }
 
 export const login = async (userData: LoginPayload, redirectUrl: string) => {
+  let loggedIn = false
+  let error
   try {
     await connectToDB()
 
@@ -40,10 +42,13 @@ export const login = async (userData: LoginPayload, redirectUrl: string) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: true,
     })
+
+    loggedIn = true
   } catch (err) {
-    return Response.error(err)
+    error = Response.error(err)
+    loggedIn = false
   }
-  return redirect(redirectUrl)
+  return loggedIn ? redirect(redirectUrl) : error
 }
 
 export const logOut = async () => {

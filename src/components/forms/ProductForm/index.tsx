@@ -1,20 +1,19 @@
-'use client'
+'use client';
 import {
   newProductAction,
   updateProductAction,
-} from '@/lib/actions/product.action'
-import { useAppDispatch, useAppSelector } from '@/lib/redux/hook'
-import { CTAddEditForms } from '@/lib/types/client.types'
-import { IngredientsPayload, ProductPayload } from '@/lib/types/payload.types'
-import FormWrapper from '@/wrappers/FormWrapper'
-import React, { useEffect, useRef, useState } from 'react'
-import { useForm, useFieldArray } from 'react-hook-form'
-import toast from 'react-hot-toast'
-import { LuLoader, LuTrash2 } from 'react-icons/lu'
-import FormInput from '../FormInput'
-import { MdEdit } from 'react-icons/md'
-import { generateId } from '@/lib/utils/client.utils'
-import { categoryActions } from '@/lib/redux/features/categorySlice'
+} from '@/lib/actions/product.action';
+import { useAppDispatch, useAppSelector } from '@/lib/redux/hook';
+import { CTAddEditForms } from '@/lib/types/client.types';
+import { IngredientsPayload } from '@/lib/types/payload.types';
+import FormWrapper from '@/wrappers/FormWrapper';
+import React, { useRef, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import toast from 'react-hot-toast';
+import { LuLoader, LuTrash2 } from 'react-icons/lu';
+import FormInput from '../FormInput';
+import { MdEdit } from 'react-icons/md';
+import { generateId } from '@/lib/utils/client.utils';
 import {
   Select,
   SelectContent,
@@ -23,28 +22,33 @@ import {
   SelectLabel,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
-import { productActions } from '@/lib/redux/features/productSlice'
+} from '@/components/ui/select';
+import { productActions } from '@/lib/redux/features/productSlice';
+import { FaRegImage } from 'react-icons/fa6';
+import Image from 'next/image';
+import { Log } from '@/lib/logs';
 // import { getCategoriesForDropDown } from '@/lib/server/get-data'
 
 interface FormFields {
-  name: string
-  price: number
-  description: string
-  images: string[]
-  categoryId: string
-  ingName: string
-  ingDesc: string
+  name: string;
+  price: number;
+  description: string;
+  images: string[];
+  categoryId: string;
+  ingName: string;
+  ingDesc: string;
 }
 
 const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
-  const dispatch = useAppDispatch()
-  const isPrefilled = useRef(false)
-  const [ingMode, setIngMode] = useState<'add' | 'update'>('add')
-  const [editIngIndex, setEditIngIndex] = useState<number | null>(null)
-  const categories = useAppSelector((st) => st.category)
-  const products = useAppSelector((st) => st.product)
-  const [ingredients, setIngredients] = useState<IngredientsPayload[]>([])
+  const dispatch = useAppDispatch();
+  const [images, setImages] = useState<string[]>([]);
+  const isPrefilled = useRef(false);
+  const [ingMode, setIngMode] = useState<'add' | 'update'>('add');
+  const [editIngIndex, setEditIngIndex] = useState<number | null>(null);
+  const categories = useAppSelector((st) => st.category);
+  const products = useAppSelector((st) => st.product);
+  const [uploading, setUploading] = useState(false);
+  const [ingredients, setIngredients] = useState<IngredientsPayload[]>([]);
   const {
     control,
     register,
@@ -55,24 +59,24 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
     watch,
     trigger,
     formState: { errors },
-  } = useForm<FormFields>()
+  } = useForm<FormFields>();
 
-  const [submitting, setSubmitting] = useState(false)
+  const [submitting, setSubmitting] = useState(false);
 
   const productSubmitHandler = async (product: FormFields) => {
-    setSubmitting(true)
+    setSubmitting(true);
     try {
       const prPy = {
         ...product,
         ingName: undefined,
         ingDesc: undefined,
-      }
+      };
 
       const res = await (mode === 'add'
-        ? newProductAction({ ...prPy, ingredients })
-        : updateProductAction({ ...prPy, ingredients }, id!))
+        ? newProductAction({ ...prPy, ingredients, images })
+        : updateProductAction({ ...prPy, ingredients }, id!));
 
-      if (!res?.ok) throw new Error(res?.message)
+      if (!res?.ok) throw new Error(res?.message);
 
       mode === 'add'
         ? dispatch(
@@ -80,64 +84,64 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
           )
         : dispatch(
             productActions.updateProduct(JSON.parse(res.data?.product || ''))
-          )
+          );
 
-      toast.success(res.message)
-      closeModal()
+      toast.success(res.message);
+      closeModal();
     } catch (err: any) {
-      toast.error(err.message)
+      toast.error(err.message);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
   const ingHandler = () => {
-    const ingName = getValues('ingName')
-    const ingDesc = getValues('ingDesc')
+    const ingName = getValues('ingName');
+    const ingDesc = getValues('ingDesc');
 
     if (!ingName || !ingDesc)
-      return toast.error('Please Provide Ingredients name and description')
+      return toast.error('Please Provide Ingredients name and description');
 
     if (ingredients.some((ing) => ing.name === ingName))
-      return toast.error("Two Ingredients can't have same name.")
+      return toast.error("Two Ingredients can't have same name.");
 
     setIngredients((lst) => {
-      const allIng = [...lst]
-      const newIng = { id: generateId(), name: ingName, description: ingDesc }
+      const allIng = [...lst];
+      const newIng = { id: generateId(), name: ingName, description: ingDesc };
 
-      ingMode === 'add' && allIng.push(newIng) // MODE = "ADD" we add new item
+      ingMode === 'add' && allIng.push(newIng); // MODE = "ADD" we add new item
       ingMode === 'update' &&
         editIngIndex !== null &&
-        allIng.splice(editIngIndex, 1, newIng) // MODE = "UPDATE" AND there is a index then we update value present at that index
+        allIng.splice(editIngIndex, 1, newIng); // MODE = "UPDATE" AND there is a index then we update value present at that index
 
-      return allIng
-    })
+      return allIng;
+    });
 
-    setValue('ingName', '')
-    setValue('ingDesc', '')
+    setValue('ingName', '');
+    setValue('ingDesc', '');
     // MODE = "UPDATE" then SET index = null AND mode = "ADD"
     if (ingMode === 'update') {
-      setEditIngIndex(null)
-      setIngMode('add')
+      setEditIngIndex(null);
+      setIngMode('add');
     }
-  }
+  };
 
   const removeIngredients = (index: number) =>
     setIngredients((lst) => {
-      const allIng = [...lst]
+      const allIng = [...lst];
 
-      allIng.splice(index, 1)
+      allIng.splice(index, 1);
 
-      return allIng
-    })
+      return allIng;
+    });
 
   const editHandler = (ing: IngredientsPayload, index: number) => {
-    setIngMode('update')
-    setFocus('ingName')
-    setValue('ingName', ing.name)
-    setValue('ingDesc', ing.description)
-    setEditIngIndex(index)
-  }
+    setIngMode('update');
+    setFocus('ingName');
+    setValue('ingName', ing.name);
+    setValue('ingDesc', ing.description);
+    setEditIngIndex(index);
+  };
 
   // EFFECT to load categories
   // useEffect(() => {
@@ -161,17 +165,76 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
   // }, [dispatch])
 
   const curProduct =
-    mode === 'edit' ? products.products.find((prd) => prd._id === id) : null
+    mode === 'edit' ? products.products.find((prd) => prd._id === id) : null;
   if (!isPrefilled.current && curProduct && id) {
-    setValue('categoryId', curProduct.categoryId)
-    setValue('name', curProduct.name)
-    setValue('price', curProduct.price)
-    setValue('description', curProduct.description)
+    setValue('categoryId', curProduct.categoryId);
+    setValue('name', curProduct.name);
+    setValue('price', curProduct.price);
+    setValue('description', curProduct.description);
     setIngredients(
       curProduct.ingredients.map((ing) => ({ ...ing, id: generateId() }))
-    )
-    isPrefilled.current = true
+    );
+    isPrefilled.current = true;
   }
+
+  // const uploadImages = async (files: FileList) => {
+  //   setUploading(true);
+  //   const imageSizeLimitInBytes = 1024 * 1024; // 1 MB
+
+  //   try {
+  //     // only 4 images are allowed
+  //     if (images.length >= 4) throw new Error('Only four files are allowed');
+
+  //     // creating a formdata to upload the images
+  //     const formData = new FormData();
+
+  //     // appending multiple images in formdata
+  //     for (let i = 0; i < files.length; i++) {
+  //       const file = files[i];
+  //       if (!file.type.includes('image')) continue;
+  //       if (file.size > imageSizeLimitInBytes) continue;
+  //       if (i > 3) continue;
+
+  //       // only upload images
+  //       formData.append('images', file);
+  //     }
+
+  //     // if formdata is empty we'll not send data to api
+  //     if (formData.getAll('images').length === 0)
+  //       throw new Error('No Images found.');
+
+  //     const res = await fetch(`/api/upload-image`, {
+  //       method: 'POST',
+  //       body: formData,
+  //     });
+
+  //     if (!res.ok) {
+  //       const text = JSON.parse(await res.text());
+  //       throw new Error(text.message);
+  //     }
+
+  //     const data = await res.json();
+
+  //     setImages((prevImgs) => {
+  //       const imgs = [...prevImgs];
+
+  //       if (imgs.length <= 4)
+  //         for (let i = 0; i < data.data.length; i++) {
+  //           const img = data.data[i];
+  //           if (imgs.length <= 4 && !img.includes(img)) imgs.push(img);
+  //         }
+
+  //       return imgs;
+  //     });
+  //     Log.log(data);
+  //   } catch (err: any) {
+  //     toast.error(err.message);
+  //   } finally {
+  //     setUploading(false);
+  //   }
+  // };
+
+  Log.log('IMGS: ', images);
 
   return (
     <FormWrapper closeModal={closeModal} title={`${mode} Product`}>
@@ -179,6 +242,88 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
         onSubmit={handleSubmit(productSubmitHandler)}
         noValidate
         className='flex flex-col gap-3'>
+        {/* <p className='text-sm text-darkTxtFade self-end'>
+          **Note: Only Image file are allowed, images must be less 100kb each
+          and only 4 images are allowed per product
+        </p> */}
+        {/* <section className='flex gap-4'>
+        
+          {images.length !== 4 && (
+            <div
+              id='dragDropContainer'
+              // preventing default behavior of opening images in new tab
+              onDragOver={(e) => {
+                e.preventDefault();
+                (e.target as HTMLElement)
+                  .closest('#dragDropContainer')
+                  ?.classList.add('animate-border');
+              }}
+              onDrop={async (e) => {
+                console.log(e.target);
+                e.preventDefault();
+                const files = e.dataTransfer.files;
+                if (!files || uploading) return;
+
+                uploadImages(files);
+              }}
+              onDragEnter={(e) => {
+                (e.target as HTMLElement)
+                  .closest('#dragDropContainer')
+                  ?.classList.add('animate-border');
+              }}
+              onDragLeave={(e) => {
+                (e.target as HTMLElement)
+                  .closest('#dragDropContainer')
+                  ?.classList.remove('animate-border');
+              }}
+              className={`w-full aspect-[1/0.4] rounded-md dash-border flex flex-col flex-1 items-center justify-center overflow-hidden ${
+                uploading && 'animate-border'
+              }`}>
+              <input
+                type='file'
+                id='productImages'
+                multiple
+                hidden
+                onChange={(e) => {
+                  const files = e.target.files;
+                  if (!files || uploading) return;
+                  uploadImages(files);
+                }}
+              />
+              <div className='gap-5 text-darkTxtFade flex flex-col items-center justify-center transition-all'>
+                <FaRegImage className='text-[80px]' />
+
+                <div className='flex flex-col gap-1 items-center'>
+                  <p>Drag & Drop Files Here or</p>
+
+                  <p>
+                    <label
+                      htmlFor='productImages'
+                      className='transition-all cursor-pointer hover:text-white hover:font-medium'>
+                      Click here
+                    </label>{' '}
+                    to upload
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {images.length > 0 && (
+            <div className='grid grid-cols-2 gap-1 h-full aspect-square'>
+              {images.map((image) => (
+                <Image
+                  key={image}
+                  src={image}
+                  alt={image}
+                  width={100}
+                  height={100}
+                  className='w-full aspect-square object-cover object-center'
+                />
+              ))}
+            </div>
+          )}
+        </section>  */}
         <FormInput
           errors={errors}
           id='name'
@@ -198,10 +343,10 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
             valueAsNumber: true,
             validate: {
               isNum(val) {
-                return !isNaN(+val) || 'Please provide a integer value'
+                return !isNaN(+val) || 'Please provide a integer value';
               },
               isPostiveVal(val) {
-                return +val > 0 || 'Please provide a +ve integer value'
+                return +val > 0 || 'Please provide a +ve integer value';
               },
             },
           }}
@@ -222,9 +367,9 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
           <Select
             value={watch('categoryId')}
             onValueChange={(roleVal) => {
-              setValue('categoryId', roleVal)
+              setValue('categoryId', roleVal);
 
-              trigger('categoryId')
+              trigger('categoryId');
             }}>
             <SelectTrigger className='w-full capitalize py-2 px-3 bg-transparent outline-none  transition-all border-opacity-50 border rounded-md border-darkTxtFade text-lightPr focus:outline-lightPr focus:outline-offset-2 focus:outline-2 focus:border-transparent'>
               <SelectValue
@@ -351,14 +496,15 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
         )}
 
         <button
-          disabled={submitting}
+          disabled={submitting || uploading}
           type='submit'
           className='max-md:self-stretch flex mt-3 justify-center gap-2 items-center self-start py-2 outline-none rounded-md bg-lightPr text-darkPr px-6 font-semibold focus:outline-lightPr focus:outline-offset-4 focus:outline-2 disabled:bg-darkTxtFade disabled:cursor-not-allowed'>
-          Submit {submitting && <LuLoader className='animate-spin' />}
+          {uploading ? 'Uploading' : 'Submit'}
+          {(submitting || uploading) && <LuLoader className='animate-spin' />}
         </button>
       </form>
     </FormWrapper>
-  )
-}
+  );
+};
 
-export default ProductForm
+export default ProductForm;

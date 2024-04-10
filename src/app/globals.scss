@@ -24,3 +24,23 @@
     vertical-align: top;
   }
 }
+
+@keyframes linearGradientMove {
+  100% {
+    background-position: 5px 0, -5px 100%, 0 -5px, 100% 5px;
+  }
+}
+
+.dash-border {
+  background: linear-gradient(90deg, rgba(#8a90a0, 0.5) 50%, transparent 0)
+      repeat-x,
+    linear-gradient(90deg, rgba(#8a90a0, 0.5) 50%, transparent 0) repeat-x,
+    linear-gradient(0deg, rgba(#8a90a0, 0.5) 50%, transparent 0) repeat-y,
+    linear-gradient(0deg, rgba(#8a90a0, 0.5) 50%, transparent 0) repeat-y;
+  background-size: 12px 3px, 12px 3px, 3px 12px, 3px 12px;
+  background-position: 0 0, 0 100%, 0 0, 100% 0;
+}
+
+.animate-border {
+  animation: linearGradientMove 0.2s infinite linear;
+}
