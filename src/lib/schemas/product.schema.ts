@@ -1,5 +1,5 @@
-import { Schema, model, models } from 'mongoose'
-import { IProductModel, IProductSchema } from '../types/schema.types'
+import { Schema, model, models } from 'mongoose';
+import { IProductModel, IProductSchema } from '../types/schema.types';
 
 const productSchema = new Schema<IProductSchema, IProductModel>(
   {
@@ -20,6 +20,15 @@ const productSchema = new Schema<IProductSchema, IProductModel>(
       required: [true, 'Product must have a price'],
       min: [100, 'Product price must greater than or equal to 100'],
     },
+    sizes: {
+      type: [
+        {
+          price: Number,
+          size: String,
+        },
+      ],
+      default: [],
+    },
     rating: {
       type: Number,
       min: [0, "rating can't be less than 0⭐"],
@@ -39,6 +48,10 @@ const productSchema = new Schema<IProductSchema, IProductModel>(
           rating: Number,
           userId: String,
           username: String,
+          date: {
+            type: Date,
+            default: Date.now(),
+          },
         },
       ],
     },
@@ -68,8 +81,8 @@ const productSchema = new Schema<IProductSchema, IProductModel>(
     },
   },
   { timestamps: true }
-)
+);
 
 const ProductModel = (models.products ||
-  model('products', productSchema)) as IProductModel
-export default ProductModel
+  model('products', productSchema)) as IProductModel;
+export default ProductModel;

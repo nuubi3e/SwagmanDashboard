@@ -24,53 +24,58 @@ export interface IUserInstanceMethods {
 export type IUserModel = Model<IUserSchema, {}, IUserInstanceMethods>
 */
 
-import { Model } from 'mongoose'
+import { Model } from 'mongoose';
 
 export interface timeStamps {
-  createdAt: string
-  updatedAt: string
-  createdBy: { id: string; name: string }
-  updatedBy: { id: string; name: string }
+  createdAt: string;
+  updatedAt: string;
+  createdBy: { id: string; name: string };
+  updatedBy: { id: string; name: string };
 }
 
 export interface IProductSchema extends timeStamps {
-  name: string
-  price: number
-  rating: number
+  name: string;
+  price: number;
+  sizes: {
+    price: number;
+    size: string;
+  }[];
+  rating: number;
   reviews: {
-    userId: string
-    review: string
-    rating: string
-    username: string
-  }[]
-  description: string
-  categoryId: string
-  images: string[]
-  ingredients: { name: string; description: string }[]
-  units: number
+    userId: string;
+    review: string;
+    rating: number;
+    username: string;
+    date?: Date;
+  }[];
+  description: string;
+  categoryId: string;
+  images: string[];
+  ingredients: { name: string; description: string }[];
+  units: number;
 }
 
-export type IProductModel = Model<IProductSchema, {}, {}>
+export type IProductModel = Model<IProductSchema, {}, {}>;
 
 export interface IUserSchema extends timeStamps {
-  username: string
-  fullName: string
-  roleId: string
-  password: string
-  displayPic?: string
+  username: string;
+  fullName: string;
+  roleId: string;
+  password: string;
+  displayPic?: string;
 }
 
-export type IUserModel = Model<IUserSchema, {}, {}>
+export type IUserModel = Model<IUserSchema, {}, {}>;
 
 export interface IRoleSchema extends timeStamps {
-  name: string
-  permissions: { name: string; actions: string[]; _id: string }[]
+  name: string;
+  permissions: { name: string; actions: string[]; _id: string }[];
 }
 
-export type IRoleModel = Model<IRoleSchema, {}, {}>
+export type IRoleModel = Model<IRoleSchema, {}, {}>;
 
 export interface ICategorySchema extends timeStamps {
-  name: string
+  name: string;
 }
 
-export type ICategoryModel = Model<ICategorySchema, {}, {}>
+export type ICategoryModel = Model<ICategorySchema, {}, {}>;
