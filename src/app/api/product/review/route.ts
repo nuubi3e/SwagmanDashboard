@@ -20,23 +20,30 @@ export const POST = async (req: NextRequest) => {
 
     const product = await ProductModel.findById(payload.productId);
 
+    if (!product) throw new ServerError('Product not found', 404);
     Log.log(product);
 
     const userReviewIndex = product!.reviews.findIndex(
       (review) => review.userId === payload.userId
     );
+
+    const userReview = {
+      userId: payload.userId,
+      review: payload.review,
+      rating: payload.rating,
+      username: payload.username,
+    };
+
     // if user has not reviewed the product
     if (userReviewIndex === -1) {
-      product!.reviews.push({
-        userId: payload.userId,
-        review: payload.review,
-        rating: payload.rating,
-        username: payload.username,
-      });
+      product!.reviews.push(userReview); // adding new review
     }
     //  if user already reviewed the product
     else {
+      product.reviews.splice(userReviewIndex, 1, userReview); // replacing new review from previous review
     }
+
+    await product.save();
 
     await db.disconnect();
     const response = Response.success({

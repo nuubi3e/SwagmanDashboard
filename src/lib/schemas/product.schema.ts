@@ -45,7 +45,11 @@ const productSchema = new Schema<IProductSchema, IProductModel>(
       type: [
         {
           review: String,
-          rating: Number,
+          rating: {
+            type: Number,
+            min: [0, "rating can't be less than 0⭐"],
+            max: [5, "rating can't be more than 5⭐"],
+          },
           userId: String,
           username: String,
           date: {
