@@ -1,5 +1,5 @@
 import { Response, ServerError } from '@/lib/response';
-import { connectToDB, disconnectFromDB } from '@/lib/server/db';
+import { connectToDB } from '@/lib/server/db';
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import crypto from 'node:crypto';
@@ -19,7 +19,7 @@ interface OTPResponse {
   expireTime: number;
 }
 
-export class AES {
+class AES {
   // Secret & key stored on server
   private static key = process.env.AES_SECRET as string;
   private static iv = process.env.AES_VECTOR_STRING as string;
