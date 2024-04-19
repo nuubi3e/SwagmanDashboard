@@ -1,7 +1,7 @@
 import { Log } from '@/lib/logs';
 import { Response, ServerError } from '@/lib/response';
 import ProductModel from '@/lib/schemas/product.schema';
-import { connectToDB } from '@/lib/server/db';
+import { connectToDB, disconnectFromDB } from '@/lib/server/db';
 import { NextRequest, NextResponse } from 'next/server';
 
 interface ReviewPayload {
@@ -14,7 +14,7 @@ interface ReviewPayload {
 
 export const POST = async (req: NextRequest) => {
   try {
-    const db = await connectToDB();
+    await connectToDB();
     console.clear();
     const payload = (await req.json()) as ReviewPayload;
 
@@ -43,9 +43,13 @@ export const POST = async (req: NextRequest) => {
       product.reviews.splice(userReviewIndex, 1, userReview); // replacing new review from previous review
     }
 
+    product.rating = +(
+      product.reviews.reduce((acc, review) => acc + review.rating, 0) /
+      product.reviews.length
+    ).toFixed(1); // calculate rating by adding all reviews rating and diving by the no of reviews and allowing only one decimal then converting the result in number
+
     await product.save();
 
-    await db.disconnect();
     const response = Response.success({
       message: 'working on it',
       data: undefined,

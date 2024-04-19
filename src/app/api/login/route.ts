@@ -1,11 +1,11 @@
 import { Response, ServerError } from '@/lib/response';
-import { connectToDB } from '@/lib/server/db';
+import { connectToDB, disconnectFromDB } from '@/lib/server/db';
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import crypto from 'node:crypto';
-import { Log } from '@/lib/logs';
 import jwt from 'jsonwebtoken';
 import { CustomerModel } from '@/lib/schemas/customer.schema';
+import { Log } from '@/lib/logs';
 
 const BRAND_NAME = 'Swagman';
 
@@ -125,15 +125,18 @@ export const POST = async (req: NextRequest) => {
 export const PUT = async (req: NextRequest) => {
   try {
     console.clear();
-    const db = await connectToDB();
+    await connectToDB();
     const payload = (await req.json()) as { otp?: number };
     const headers = req.headers.get('X-Key') || '';
+    Log.log('Headers ', req.headers);
 
     const decPayload = JSON.parse(AES.decrypt(headers)) as OTPResponse;
 
-    if (!payload?.otp) throw new ServerError('Invalid OTP', 400);
+    if (!payload?.otp) throw new ServerError('Invalid Request', 400);
 
     const curTime = Date.now(); // this will return the current time in milliseconds
+
+    Log.log('CUR', curTime, 'Expires: ', decPayload.expireTime);
 
     // both time are in milliseconds
     if (curTime > decPayload.expireTime)
@@ -154,23 +157,25 @@ export const PUT = async (req: NextRequest) => {
       customer = await CustomerModel.create({
         name: `swaguser${customers + 1}`,
         email: decPayload.email,
+        username: `swaguser${customers + 1}`,
       });
 
     const authToken = jwt.sign(
-      customer._id.toString(),
+      { id: customer._id.toString() },
       process.env.JWT_SECRET!,
       {
         expiresIn: '36h',
       }
     );
 
-    // Disconnecting db
-    await db.disconnect();
+    const expiresTime = Date.now() + 32 * 60 * 60 * 1000;
+
     // Log.log(headers);
     const response = Response.success({
       message: 'User Logged in successfully',
       data: {
         token: authToken,
+        expiresTime,
       },
       statusCode: 200,
     });

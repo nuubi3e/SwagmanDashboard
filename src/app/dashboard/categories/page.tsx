@@ -1,36 +1,36 @@
-import { getActions } from '@/lib/server/auth'
-import PageWrapper from '@/wrappers/PageWrapper'
-import TableWrapper from '@/wrappers/TableWrapper'
-import { Metadata } from 'next'
-import { Suspense } from 'react'
-import Categories from '.'
-import { TableRowSkeleton } from '@/components/Skeletons'
-import { Log } from '@/lib/logs'
+import { getActions } from '@/lib/server/auth';
+import PageWrapper from '@/wrappers/PageWrapper';
+import TableWrapper from '@/wrappers/TableWrapper';
+import { Metadata } from 'next';
+import { Suspense } from 'react';
+import Categories from '.';
+import { TableRowSkeleton } from '@/components/Skeletons/Skeletions';
+import { Log } from '@/lib/logs';
 
 export const metadata: Metadata = {
   title: 'Swagman | Categories',
   description: 'Manage Product Categories',
-}
+};
 
 interface CategoriesPageProps {
   searchParams: {
-    page: number
-    item: string
-  }
+    page: number;
+    item: string;
+  };
 }
 
 export default async function CategoriesPage({
   searchParams,
 }: CategoriesPageProps) {
-  Log.log(searchParams)
+  Log.log(searchParams);
 
-  const actions = await getActions('categories')
+  const actions = await getActions('categories');
 
-  const headers = ['S No', 'Name', 'History']
+  const headers = ['S No', 'Name', 'History'];
 
   // onShowing headers is user has permission to perform any action
-  ;(actions.includes('update') || actions.includes('remove')) &&
-    headers.push('Actions')
+  (actions.includes('update') || actions.includes('remove')) &&
+    headers.push('Actions');
 
   return (
     <PageWrapper
@@ -45,5 +45,5 @@ export default async function CategoriesPage({
         </Suspense>
       </TableWrapper>
     </PageWrapper>
-  )
+  );
 }

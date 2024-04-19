@@ -3,7 +3,7 @@ import { Response, ServerError } from '@/lib/response';
 import { CategoryModel } from '@/lib/schemas/category.schema';
 import ProductModel from '@/lib/schemas/product.schema';
 import { checkContentAccessPermission } from '@/lib/server/auth';
-import { connectToDB } from '@/lib/server/db';
+import { connectToDB, disconnectFromDB } from '@/lib/server/db';
 import { IProductSchema } from '@/lib/types/schema.types';
 import { Document, Types } from 'mongoose';
 import { NextResponse, NextRequest } from 'next/server';
@@ -22,8 +22,6 @@ export const GET = async (req: NextRequest) => {
     console.clear();
     const reqOrigin = req.headers.get('origin') || '';
 
-    console.log(reqOrigin);
-
     if (!checkContentAccessPermission(reqOrigin))
       throw new ServerError('Access Denied', 400);
 
@@ -38,18 +36,15 @@ export const GET = async (req: NextRequest) => {
       })[] = [];
 
     if (cat) {
-      Log.log('I IF', cat);
       products = await ProductModel.find({
         categoryId: cat._id.toString(),
       })
         .sort({ createdAt: -1 })
-        .select('-__v');
-
-      Log.log('IN IF PRD', products);
+        .select('-__v  -createdAt -updatedAt -createdBy -updatedBy');
     } else {
       products = await ProductModel.find()
         .sort({ createdAt: -1 })
-        .select('-__v');
+        .select('-__v  -createdAt -updatedAt -createdBy -updatedBy');
     }
 
     const response = Response.success<ProductResponse>({

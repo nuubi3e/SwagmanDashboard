@@ -1,10 +1,10 @@
-import React, { Suspense } from 'react'
-import { LeftNavToggleBtn } from '../Buttons'
-import { getSession } from '@/lib/server/auth'
-import SearchBar from '../SearchBar'
+import React, { Suspense } from 'react';
+import { LeftNavToggleBtn } from '../Buttons';
+import { getSession } from '@/lib/server/auth';
+import SearchBar from '../SearchBar/SearchBar.component';
 
 const TopBar = async () => {
-  const user = await getSession()
+  const user = await getSession();
 
   return (
     <header className='sticky top-0 right-0 w-full pt-7 pb-5 px-14 flex items-center text-lightPr bg-darkPr max-lg:px-6 max-lg:gap-5'>
@@ -18,7 +18,7 @@ const TopBar = async () => {
         <figure className='w-8 aspect-square rounded-full bg-darkTxtFade'></figure>
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default TopBar
+export default TopBar;

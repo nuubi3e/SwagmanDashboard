@@ -35,10 +35,17 @@ export interface ProductPayload {
   images?: string[];
   categoryId: string;
   ingredients: IngredientsPayload[];
+  sizes: SizesPayload[];
 }
 
 export interface IngredientsPayload {
   id: string;
   name: string;
   description: string;
+}
+
+export interface SizesPayload {
+  price: number;
+  size: string;
+  id: string;
 }

@@ -16,9 +16,47 @@ export const GET = async (req: NextRequest) => {
 
     await connectToDB();
 
-    const categories = await CategoryModel.find().select(
-      '-__v -createdAt -updatedAt -updatedBy -createdBy'
-    );
+    // finding categories which have some products
+    const categories = await CategoryModel.aggregate([
+      {
+        // converting objectId to str to easy comparison
+        $addFields: { strId: { $toString: '$_id' } },
+      },
+      {
+        // joining product table to find how many product present in particular category
+        $lookup: {
+          from: 'products',
+          localField: 'strId',
+          foreignField: 'categoryId',
+          as: 'products',
+        },
+      },
+      {
+        // adding a count field to filter categories having 0 product count
+        $addFields: {
+          productCount: { $size: '$products' },
+        },
+      },
+      {
+        // filtering categories
+        $match: {
+          productCount: { $gt: 0 },
+        },
+      },
+      {
+        // sorting new to old
+        $sort: {
+          createdAt: -1,
+        },
+      },
+      {
+        // only returning id and name
+        $project: {
+          _id: 1,
+          name: 1,
+        },
+      },
+    ]);
 
     const response = Response.success({
       message: 'Categories Selected Successfully',

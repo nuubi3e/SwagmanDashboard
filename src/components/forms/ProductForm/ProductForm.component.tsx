@@ -5,13 +5,13 @@ import {
 } from '@/lib/actions/product.action';
 import { useAppDispatch, useAppSelector } from '@/lib/redux/hook';
 import { CTAddEditForms } from '@/lib/types/client.types';
-import { IngredientsPayload } from '@/lib/types/payload.types';
+import { IngredientsPayload, SizesPayload } from '@/lib/types/payload.types';
 import FormWrapper from '@/wrappers/FormWrapper';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
 import { LuLoader, LuTrash2 } from 'react-icons/lu';
-import FormInput from '../FormInput';
+import FormInput from '../FormInput/FormInput.component';
 import { MdEdit } from 'react-icons/md';
 import { generateId } from '@/lib/utils/client.utils';
 import {
@@ -24,8 +24,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { productActions } from '@/lib/redux/features/productSlice';
-import { FaRegImage } from 'react-icons/fa6';
-import Image from 'next/image';
 import { Log } from '@/lib/logs';
 // import { getCategoriesForDropDown } from '@/lib/server/get-data'
 
@@ -37,6 +35,8 @@ interface FormFields {
   categoryId: string;
   ingName: string;
   ingDesc: string;
+  sizeName: string;
+  sizePrice: string;
 }
 
 const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
@@ -44,11 +44,14 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
   const [images, setImages] = useState<string[]>([]);
   const isPrefilled = useRef(false);
   const [ingMode, setIngMode] = useState<'add' | 'update'>('add');
+  const [sizeMode, setSizeMode] = useState<'add' | 'update'>('add');
   const [editIngIndex, setEditIngIndex] = useState<number | null>(null);
+  const [editSizeIndex, setEditSizeIndex] = useState<number | null>(null);
   const categories = useAppSelector((st) => st.category);
   const products = useAppSelector((st) => st.product);
   const [uploading, setUploading] = useState(false);
   const [ingredients, setIngredients] = useState<IngredientsPayload[]>([]);
+  const [sizes, setSizes] = useState<SizesPayload[]>([]);
   const {
     control,
     register,
@@ -73,8 +76,8 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
       };
 
       const res = await (mode === 'add'
-        ? newProductAction({ ...prPy, ingredients, images })
-        : updateProductAction({ ...prPy, ingredients }, id!));
+        ? newProductAction({ ...prPy, ingredients, images, sizes })
+        : updateProductAction({ ...prPy, ingredients, sizes }, id!));
 
       if (!res?.ok) throw new Error(res?.message);
 
@@ -141,6 +144,58 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
     setValue('ingName', ing.name);
     setValue('ingDesc', ing.description);
     setEditIngIndex(index);
+  };
+
+  const sizeHandler = () => {
+    const sizeName = getValues('sizeName');
+    const sizePrice = +getValues('sizePrice');
+
+    if (!sizeName || !sizePrice)
+      return toast.error('Please Provide Size name and price');
+
+    if (sizeMode !== 'update' && sizes.some((size) => size.size === sizeName))
+      return toast.error("Two Sizes can't have same name.");
+
+    setSizes((lst) => {
+      const allSizes = [...lst];
+      const newSize: SizesPayload = {
+        id: generateId(),
+        price: sizePrice,
+        size: sizeName,
+      };
+
+      sizeMode === 'add' && allSizes.push(newSize); // MODE = "ADD" we add new item
+      sizeMode === 'update' &&
+        editSizeIndex !== null &&
+        allSizes.splice(editSizeIndex, 1, newSize); // MODE = "UPDATE" AND there is a index then we update value present at that index
+
+      return allSizes;
+    });
+
+    setValue('sizeName', '');
+    setValue('sizePrice', '');
+    // MODE = "UPDATE" then SET index = null AND mode = "ADD"
+    if (sizeMode === 'update') {
+      setEditSizeIndex(null);
+      setSizeMode('add');
+    }
+  };
+
+  const removeSizes = (index: number) =>
+    setSizes((lst) => {
+      const allSizes = [...lst];
+
+      allSizes.splice(index, 1);
+
+      return allSizes;
+    });
+
+  const editSizeHandler = (size: SizesPayload, index: number) => {
+    setSizeMode('update');
+    setValue('sizeName', size.size);
+    setFocus('sizeName');
+    setValue('sizePrice', size.price.toString());
+    setEditSizeIndex(index);
   };
 
   // EFFECT to load categories
@@ -413,6 +468,89 @@ const ProductForm: CTAddEditForms = ({ closeModal, mode, id }) => {
           )}
         </div>
 
+        {/* SIZES */}
+        <div className='flex flex-col gap-2'>
+          <label className='font-medium self-start'>Sizes</label>
+          <section className='flex gap-2'>
+            <input
+              type='text'
+              id='sizeName'
+              placeholder='Name'
+              {...register('sizeName')}
+              className='w-full resize-none py-2 px-3 bg-transparent outline-none transition-all border-opacity-50 border rounded-md border-darkTxtFade text-lightPr focus:outline-lightPr focus:outline-offset-2 focus:outline-2 focus:border-transparent'
+            />
+            <input
+              type='number'
+              id='sizePrice'
+              placeholder='Price'
+              {...register('sizePrice', {
+                required: false,
+                valueAsNumber: true,
+                validate: {
+                  isNum(val) {
+                    return !isNaN(+val) || 'Please provide a integer value';
+                  },
+                  isPostiveVal(val) {
+                    return +val > 0 || 'Please provide a +ve integer value';
+                  },
+                },
+              })}
+              className='w-full resize-none py-2 px-3 bg-transparent outline-none transition-all border-opacity-50 border rounded-md border-darkTxtFade text-lightPr focus:outline-lightPr focus:outline-offset-2 focus:outline-2 focus:border-transparent'
+            />
+
+            <button
+              type='button'
+              onClick={sizeHandler}
+              className='capitalize max-md:self-stretch flex justify-center gap-2 items-center self-end py-2 outline-none rounded-md bg-lightPr text-darkPr px-6 font-semibold focus:outline-lightPr focus:outline-offset-4 focus:outline-2 disabled:bg-darkTxtFade disabled:cursor-not-allowed'>
+              {sizeMode}
+            </button>
+          </section>
+        </div>
+
+        {sizes.length > 0 && (
+          <div className='self-stretch flex flex-col gap-2'>
+            <h3 className='text-xl font-medium'>Size List</h3>
+            <table className='w-full'>
+              <thead>
+                <tr className='text-grayPr bg-darkPr text-[15px]'>
+                  <th className='text-left px-3 py-2'>S.No</th>
+                  <th className='text-left px-3 py-2'>Name</th>
+                  <th className='text-left px-3 py-2'>Price</th>
+                  <th className='text-left px-3 py-2'>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {sizes.map((size, i) => (
+                  <tr key={size.id} className='text-lightPr'>
+                    <td className='text-left px-3 py-2 align_td_top'>
+                      {i + 1} )
+                    </td>
+                    <td className='text-left px-3 py-2 align_td_top'>
+                      {size.size}
+                    </td>
+                    <td className='text-left px-3 py-2'>₹ {size.price}</td>
+                    <td className='text-left px-3 py-2 align_td_top'>
+                      <p className='flex items-center gap-2'>
+                        <MdEdit
+                          className='text-lightPr text-xl cursor-pointer transition-all hover:scale-105'
+                          role='button'
+                          onClick={() => editSizeHandler(size, i)}
+                        />
+                        <LuTrash2
+                          className='text-lightPr text-xl cursor-pointer transition-all hover:scale-105'
+                          role='button'
+                          onClick={() => removeSizes(i)}
+                        />
+                      </p>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* INGREDIENTS */}
         <div className='flex flex-col gap-2'>
           <label htmlFor='ingName' className='font-medium self-start'>
             Ingredient Name

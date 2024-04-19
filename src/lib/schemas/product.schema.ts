@@ -8,7 +8,6 @@ const productSchema = new Schema<IProductSchema, IProductModel>(
       required: [true, 'Product must have a name'],
       unique: true,
       minLength: [6, 'Product must be minimum 6 character long'],
-      toLower: true,
       trim: true,
     },
     units: {
@@ -17,8 +16,8 @@ const productSchema = new Schema<IProductSchema, IProductModel>(
     },
     price: {
       type: Number,
-      required: [true, 'Product must have a price'],
       min: [100, 'Product price must greater than or equal to 100'],
+      default: 100,
     },
     sizes: {
       type: [

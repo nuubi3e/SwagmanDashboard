@@ -1,17 +1,20 @@
-import React, { Suspense } from 'react'
-import { SwagmanLogo } from '../icons/Logos'
-import LeftNavs from '../LeftNavs'
-import { LogOutBtn } from '../Buttons'
-import { LeftNavSkeleton } from '../Skeletons'
-import dynamic from 'next/dynamic'
+import React, { Suspense } from 'react';
+import { SwagmanLogo } from '../icons/Logos/Logos';
+import LeftNavs from '../LeftNavs/LeftNavs.component';
+import { LogOutBtn } from '../Buttons';
+
+import dynamic from 'next/dynamic';
+import { PERMISSIONTYPE } from '@/lib/utils/global.utils';
 const ResponsiveLeftNavWrapper = dynamic(
   () => import('@/wrappers/ResponsiveLeftNavWrapper'),
   { ssr: false }
-)
+);
 
-
-
-const LeftNavbar = async () => {
+const LeftNavbar = async ({
+  permissions,
+}: {
+  permissions: PERMISSIONTYPE[];
+}) => {
   return (
     <ResponsiveLeftNavWrapper>
       <div className='flex justify-center mb-10 my-5'>
@@ -20,9 +23,7 @@ const LeftNavbar = async () => {
 
       <nav className='overflow-hidden flex-1'>
         <ul className='h-full overflow-y-scroll cus_scrollbar flex flex-col items-start'>
-          <Suspense fallback={<LeftNavSkeleton count={5} />}>
-            <LeftNavs />
-          </Suspense>
+          <LeftNavs permissions={permissions} />
         </ul>
       </nav>
 
@@ -31,7 +32,7 @@ const LeftNavbar = async () => {
         <LogOutBtn />
       </div>
     </ResponsiveLeftNavWrapper>
-  )
-}
+  );
+};
 
-export default LeftNavbar
+export default LeftNavbar;

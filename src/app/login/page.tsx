@@ -1,28 +1,28 @@
-import LoginForm from './LoginForm'
-import { Log } from '@/lib/logs'
-import { redirect } from 'next/navigation'
-import { Metadata } from 'next'
-import { MustacheLogo, SwagmanLogo } from '@/components/icons/Logos'
-import { getSession } from '@/lib/server/auth'
+import LoginForm from './LoginForm';
+import { Log } from '@/lib/logs';
+import { redirect } from 'next/navigation';
+import { Metadata } from 'next';
+import { MustacheLogo, SwagmanLogo } from '@/components/icons/Logos/Logos';
+import { getSession } from '@/lib/server/auth';
 
 interface LoginPageProps {
   searchParams: {
-    redirect?: string
-  }
+    redirect?: string;
+  };
 }
 
 export const metadata: Metadata = {
   title: 'Swagman | Login',
   description: 'Login to access Swagman | e-commerce Admin dashboard',
-}
+};
 
 export default async function LoginPage({ searchParams }: LoginPageProps) {
-  const session = await getSession()
+  const session = await getSession();
 
-  Log.log(searchParams)
+  Log.log(searchParams);
 
-  Log.log(session)
-  if (session) return redirect('/dashboard')
+  Log.log(session);
+  if (session) return redirect('/dashboard');
 
   return (
     <>
@@ -45,5 +45,5 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         </p>
       </main>
     </>
-  )
+  );
 }

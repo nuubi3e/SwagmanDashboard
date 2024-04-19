@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
-import FormInput from '@/components/forms/FormInput';
+import FormInput from '@/components/forms/FormInput/FormInput.component';
 import { LuLoader } from 'react-icons/lu';
 import { CusToast } from '@/Providers/ToastProvider';
 

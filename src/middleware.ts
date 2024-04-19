@@ -11,7 +11,8 @@ export const middleware = async (req: NextRequest) => {
   const requestedPage = requestedURL.split('/').at(-1) as
     | PERMISSIONTYPE
     | 'dashboard';
-  Log.log(requestedPage);
+
+  Log.log('REQUESTED PAGE: ', requestedPage);
   const authToken = cookies().get('auth')?.value || '';
 
   if (!authToken)
@@ -24,7 +25,7 @@ export const middleware = async (req: NextRequest) => {
 
   try {
     // Calling api to get permissions
-    const res = await fetch(`${process.env.NEXT_URL}/api/permissions`, {
+    const res = await fetch(`${process.env.NEXT_URL}api/permissions`, {
       headers: {
         Authorization: `Bearer ${authToken}`,
       },

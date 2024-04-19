@@ -1,13 +1,13 @@
-import { model, Schema } from 'mongoose';
+import { model, models, Schema } from 'mongoose';
+import { ICustomerModel, ICustomerSchema } from '../types/schema.types';
 
-const customerSchema = new Schema({
+const customerSchema = new Schema<ICustomerSchema, ICustomerModel>({
   name: {
     type: String,
     required: [true, 'Customer must have a name'],
-    unique: true,
     minLength: [6, 'Customer must be minimum 6 character long'],
-    toLower: true,
     trim: true,
+    lowercase: true,
   },
   email: {
     type: String,
@@ -16,6 +16,14 @@ const customerSchema = new Schema({
     minLength: [6, 'Customer must be minimum 6 character long'],
     trim: true,
   },
+  username: {
+    type: String,
+    required: [true, 'Please provide your good usernames'],
+    unique: true,
+    trim: true,
+    lowercase: true,
+  },
 });
 
-export const CustomerModel = model('m_customers', customerSchema);
+export const CustomerModel = (models.customers ||
+  model('customers', customerSchema)) as ICustomerModel;

@@ -1,7 +1,7 @@
 import { Response, ServerError } from '@/lib/response';
 import ProductModel from '@/lib/schemas/product.schema';
 import { checkContentAccessPermission } from '@/lib/server/auth';
-import { connectToDB } from '@/lib/server/db';
+import { connectToDB, disconnectFromDB } from '@/lib/server/db';
 import { NextResponse, NextRequest } from 'next/server';
 
 export const GET = async (req: NextRequest) => {

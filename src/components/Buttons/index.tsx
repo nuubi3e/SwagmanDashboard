@@ -1,57 +1,57 @@
-'use client'
-import { FaPlus } from 'react-icons/fa6'
-import { useState } from 'react'
-import RoleForm from '@/components/forms/RoleForm'
-import { AnimatePresence } from 'framer-motion'
-import UserForm from '../forms/UserForm'
-import { MdOutlineModeEditOutline } from 'react-icons/md'
+'use client';
+import { FaPlus } from 'react-icons/fa6';
+import { useState } from 'react';
+import RoleForm from '@/components/forms/RoleForm/RoleForm.component';
+import { AnimatePresence } from 'framer-motion';
+import UserForm from '../forms/UserForm/UserForm.component';
+import { MdOutlineModeEditOutline } from 'react-icons/md';
 import {
   CTAddEditForms,
   CTEditDeleteBtnCP,
   FORMTYPES,
-} from '@/lib/types/client.types'
-import { LuTrash } from 'react-icons/lu'
-import toast from 'react-hot-toast'
-import ConfirmModal from '../ConfirmModal'
-import { RemoveActionType } from '@/lib/types/global.types'
-import { removeRoleAction } from '@/lib/actions/role.action'
-import { useAppDispatch } from '@/lib/redux/hook'
-import { roleAcions } from '@/lib/redux/features/roleSlice'
-import { ActionCreatorWithPayload } from '@reduxjs/toolkit'
-import { authActions } from '@/lib/redux/features/authSlice'
-import { logOut } from '@/lib/actions/auth.action'
-import { RiLogoutCircleLine, RiMenu2Fill } from 'react-icons/ri'
-import { deleteUserAction } from '@/lib/actions/user.action'
-import { userActions } from '@/lib/redux/features/userSlice'
-import { removeCategoryActions } from '@/lib/actions/category.action'
-import { categoryActions } from '@/lib/redux/features/categorySlice'
-import CategoryForm from '../forms/CategoryForm'
-import { uiActions } from '@/lib/redux/features/uiSlice'
-import ProductForm from '../forms/ProductForm'
-import { removeProductAction } from '@/lib/actions/product.action'
-import { productActions } from '@/lib/redux/features/productSlice'
+} from '@/lib/types/client.types';
+import { LuTrash } from 'react-icons/lu';
+import toast from 'react-hot-toast';
+import ConfirmModal from '../ConfirmModal';
+import { RemoveActionType } from '@/lib/types/global.types';
+import { removeRoleAction } from '@/lib/actions/role.action';
+import { useAppDispatch } from '@/lib/redux/hook';
+import { roleAcions } from '@/lib/redux/features/roleSlice';
+import { ActionCreatorWithPayload } from '@reduxjs/toolkit';
+import { authActions } from '@/lib/redux/features/authSlice';
+import { logOut } from '@/lib/actions/auth.action';
+import { RiLogoutCircleLine, RiMenu2Fill } from 'react-icons/ri';
+import { deleteUserAction } from '@/lib/actions/user.action';
+import { userActions } from '@/lib/redux/features/userSlice';
+import { removeCategoryActions } from '@/lib/actions/category.action';
+import { categoryActions } from '@/lib/redux/features/categorySlice';
+import CategoryForm from '../forms/CategoryForm/CategoryForm.component';
+import { uiActions } from '@/lib/redux/features/uiSlice';
+import ProductForm from '../forms/ProductForm/ProductForm.component';
+import { removeProductAction } from '@/lib/actions/product.action';
+import { productActions } from '@/lib/redux/features/productSlice';
 
 interface NewActionButtonProps {
-  title: FORMTYPES
+  title: FORMTYPES;
 }
 
-type AddEditForm = Record<FORMTYPES, CTAddEditForms>
+type AddEditForm = Record<FORMTYPES, CTAddEditForms>;
 
 const AddEditForms: AddEditForm = {
   category: CategoryForm,
   product: ProductForm,
   role: RoleForm,
   user: UserForm,
-}
+};
 
 type DeleteBtnType = Record<
   FORMTYPES,
   {
-    serverFn: RemoveActionType
-    clientFn: ActionCreatorWithPayload<string>
-    note?: string
+    serverFn: RemoveActionType;
+    clientFn: ActionCreatorWithPayload<string>;
+    note?: string;
   }
->
+>;
 const DeletBtnActions: DeleteBtnType = {
   role: {
     serverFn: removeRoleAction,
@@ -71,12 +71,12 @@ const DeletBtnActions: DeleteBtnType = {
     serverFn: removeProductAction,
     clientFn: productActions.deleteProduct,
   },
-}
+};
 
 export const NewActionButton = ({ title }: NewActionButtonProps) => {
-  const [openModal, setOpenModal] = useState(false)
+  const [openModal, setOpenModal] = useState(false);
 
-  const FormCP = AddEditForms[title]
+  const FormCP = AddEditForms[title];
 
   return (
     <>
@@ -92,13 +92,13 @@ export const NewActionButton = ({ title }: NewActionButtonProps) => {
         )}
       </AnimatePresence>
     </>
-  )
-}
+  );
+};
 
 export const UpdateActionButton: CTEditDeleteBtnCP = ({ id, title }) => {
-  const [openModal, setOpenModal] = useState(false)
+  const [openModal, setOpenModal] = useState(false);
 
-  const FormCP = AddEditForms[title]
+  const FormCP = AddEditForms[title];
 
   return (
     <>
@@ -114,37 +114,37 @@ export const UpdateActionButton: CTEditDeleteBtnCP = ({ id, title }) => {
         )}
       </AnimatePresence>
     </>
-  )
-}
+  );
+};
 
 export const DeleteActionButton: CTEditDeleteBtnCP = ({
   id,
   title,
   curUserId,
 }) => {
-  const [openModal, setOpenModal] = useState(false)
-  const [confirming, setConfirming] = useState(false)
-  const dispatch = useAppDispatch()
+  const [openModal, setOpenModal] = useState(false);
+  const [confirming, setConfirming] = useState(false);
+  const dispatch = useAppDispatch();
 
-  const curButtonAction = DeletBtnActions[title]
+  const curButtonAction = DeletBtnActions[title];
 
   const removeHandler = async () => {
-    setConfirming(true)
+    setConfirming(true);
     try {
-      const res = await curButtonAction.serverFn(id!)
+      const res = await curButtonAction.serverFn(id!);
 
-      if (!res.ok) throw new Error(res.message)
+      if (!res.ok) throw new Error(res.message);
 
-      dispatch(curButtonAction.clientFn(res.data?.id || ''))
-      setOpenModal(false)
-      toast.success(res.message)
+      dispatch(curButtonAction.clientFn(res.data?.id || ''));
+      setOpenModal(false);
+      toast.success(res.message);
     } catch (err) {
     } finally {
-      setConfirming(false)
+      setConfirming(false);
     }
-  }
+  };
 
-  if (curUserId === id) return
+  if (curUserId === id) return;
 
   return (
     <>
@@ -165,16 +165,16 @@ export const DeleteActionButton: CTEditDeleteBtnCP = ({
         )}
       </AnimatePresence>
     </>
-  )
-}
+  );
+};
 
 export const LogOutBtn = () => {
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
 
   const logoutHandler = async () => {
-    dispatch(authActions.logOut())
-    await logOut()
-  }
+    dispatch(authActions.logOut());
+    await logOut();
+  };
 
   return (
     <button
@@ -183,11 +183,11 @@ export const LogOutBtn = () => {
       className='flex items-center gap-3 justify-center font-medium py-3 rounded-tr-full text-darkTxtFade rounded-br-full mr-7 transition-all hover:bg-lightPr hover:text-darkPr'>
       <RiLogoutCircleLine /> Logout
     </button>
-  )
-}
+  );
+};
 
 export const LeftNavToggleBtn = () => {
-  const dispatch = useAppDispatch()
+  const dispatch = useAppDispatch();
   return (
     <button
       type='button'
@@ -195,5 +195,5 @@ export const LeftNavToggleBtn = () => {
       onClick={() => dispatch(uiActions.openNav())}>
       <RiMenu2Fill className='text-lightPr text-3xl' />
     </button>
-  )
-}
+  );
+};

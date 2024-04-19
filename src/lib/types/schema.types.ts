@@ -39,6 +39,7 @@ export interface IProductSchema extends timeStamps {
   sizes: {
     price: number;
     size: string;
+    _id?: string;
   }[];
   rating: number;
   reviews: {
@@ -47,11 +48,12 @@ export interface IProductSchema extends timeStamps {
     rating: number;
     username: string;
     date?: Date;
+    _id?: string;
   }[];
   description: string;
   categoryId: string;
   images: string[];
-  ingredients: { name: string; description: string }[];
+  ingredients: { name: string; description: string; _id?: string }[];
   units: number;
 }
 
