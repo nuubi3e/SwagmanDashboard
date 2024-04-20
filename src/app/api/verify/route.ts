@@ -6,7 +6,9 @@ import { NextRequest, NextResponse } from 'next/server';
 interface UserSession {
   id: string;
   username: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  mobileNo: number;
   email: string;
 }
 export const GET = async (req: NextRequest) => {
@@ -26,8 +28,10 @@ export const GET = async (req: NextRequest) => {
         user: {
           email: customer.email,
           id: customer._id.toString(),
-          name: customer.name,
+          firstName: customer.firstName,
+          lastName: customer.firstName,
           username: customer.username,
+          mobileNo: customer.mobileNo,
         },
       },
       statusCode: 200,

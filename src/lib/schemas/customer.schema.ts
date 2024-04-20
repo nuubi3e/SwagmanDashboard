@@ -2,10 +2,15 @@ import { model, models, Schema } from 'mongoose';
 import { ICustomerModel, ICustomerSchema } from '../types/schema.types';
 
 const customerSchema = new Schema<ICustomerSchema, ICustomerModel>({
-  name: {
+  firstName: {
     type: String,
     required: [true, 'Customer must have a name'],
     minLength: [6, 'Customer must be minimum 6 character long'],
+    trim: true,
+    lowercase: true,
+  },
+  lastName: {
+    type: String,
     trim: true,
     lowercase: true,
   },
@@ -22,6 +27,11 @@ const customerSchema = new Schema<ICustomerSchema, ICustomerModel>({
     unique: true,
     trim: true,
     lowercase: true,
+  },
+  mobileNo: {
+    type: Number,
+    unique: true,
+    trim: true,
   },
 });
 

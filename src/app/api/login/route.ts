@@ -155,7 +155,8 @@ export const PUT = async (req: NextRequest) => {
     // checking if customer is already existing or not
     if (!customer)
       customer = await CustomerModel.create({
-        name: `swaguser${customers + 1}`,
+        firstName: `swag`,
+        lastName: 'user',
         email: decPayload.email,
         username: `swaguser${customers + 1}`,
       });

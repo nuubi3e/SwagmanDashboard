@@ -1,27 +1,28 @@
-'use server'
-import { connectToDB } from '../server/db'
-import { ActionResponse, Response, ServerError } from '../response'
-import { CategoryModel } from '../schemas/category.schema'
-import { CTCategory } from '../types/client.types'
-import { RemoveActionType } from '../types/global.types'
-import { CategoryPayload } from '../types/payload.types'
-import { PERMISSIONTYPE } from '../utils/global.utils'
-import { checkActionPermission, getSession } from '../server/auth'
+'use server';
+import { connectToDB } from '../server/db';
+import { ActionResponse, Response, ServerError } from '../response';
+import { CategoryModel } from '../schemas/category.schema';
+import { CTCategory } from '../types/client.types';
+import { RemoveActionType } from '../types/global.types';
+import { CategoryPayload } from '../types/payload.types';
+import { PERMISSIONTYPE } from '../utils/global.utils';
+import { checkActionPermission, getSession } from '../server/auth';
+import ProductModel from '../schemas/product.schema';
 
-const CUR_PERMISSION: PERMISSIONTYPE = 'categories'
+const CUR_PERMISSION: PERMISSIONTYPE = 'categories';
 
 export const newCategoryAction: (
   category: CategoryPayload
 ) => Promise<ActionResponse<{ category: CTCategory }>> = async (category) => {
   try {
-    await connectToDB()
+    await connectToDB();
 
-    const hasPermission = await checkActionPermission('add', CUR_PERMISSION)
+    const hasPermission = await checkActionPermission('add', CUR_PERMISSION);
 
     if (!hasPermission)
-      throw new ServerError('You no longer have permission to add', 401)
+      throw new ServerError('You no longer have permission to add', 401);
 
-    const user = await getSession()
+    const user = await getSession();
 
     const newCategory = await CategoryModel.create({
       ...category,
@@ -33,7 +34,7 @@ export const newCategoryAction: (
         id: user?.id,
         name: user?.username,
       },
-    })
+    });
 
     const response = Response.success<{ category: CTCategory }>({
       message: `Category: ${category.name} created Successfully.`,
@@ -46,25 +47,30 @@ export const newCategoryAction: (
           updatedAt: newCategory.updatedAt.toString(),
         },
       },
-    })
+    });
 
-    return response
+    return response;
   } catch (err) {
-    const error = Response.error(err)
-    return error
+    const error = Response.error(err);
+    return error;
   }
-}
+};
 
 export const removeCategoryActions: RemoveActionType = async (id) => {
   try {
-    await connectToDB()
+    await connectToDB();
 
-    const hasPermission = await checkActionPermission('add', CUR_PERMISSION)
+    const hasPermission = await checkActionPermission('add', CUR_PERMISSION);
 
     if (!hasPermission)
-      throw new ServerError('You no longer have permission to add', 401)
+      throw new ServerError('You no longer have permission to add', 401);
 
-    const category = await CategoryModel.findByIdAndDelete(id)
+    const category = await CategoryModel.findByIdAndDelete(id); // deleting category
+
+    // deleting products present in category
+    await ProductModel.deleteMany({
+      categoryId: id,
+    });
 
     const response = Response.success({
       message: `Category: ${category?.name} removed Successfully.`,
@@ -72,14 +78,14 @@ export const removeCategoryActions: RemoveActionType = async (id) => {
       data: {
         id: category?._id.toString() || '',
       },
-    })
+    });
 
-    return response
+    return response;
   } catch (err) {
-    const error = Response.error(err)
-    return error
+    const error = Response.error(err);
+    return error;
   }
-}
+};
 
 export const updateCategoryAction: (
   category: CategoryPayload,
@@ -89,22 +95,22 @@ export const updateCategoryAction: (
   id
 ) => {
   try {
-    await connectToDB()
+    await connectToDB();
 
-    const hasPermission = await checkActionPermission('add', CUR_PERMISSION)
+    const hasPermission = await checkActionPermission('add', CUR_PERMISSION);
 
     if (!hasPermission)
-      throw new ServerError('You no longer have permission to add', 401)
+      throw new ServerError('You no longer have permission to add', 401);
 
-    const user = await getSession()
+    const user = await getSession();
 
     const updatedCategory = await CategoryModel.findByIdAndUpdate(
       id,
       { ...category, updatedBy: { id: user?.id, name: user?.username } },
       { new: true }
-    ).select('-__v')
+    ).select('-__v');
 
-    if (!updatedCategory) throw new ServerError('No data found', 404)
+    if (!updatedCategory) throw new ServerError('No data found', 404);
 
     const response = Response.success<{ category: CTCategory }>({
       message: `Category: ${category.name} created Successfully.`,
@@ -117,11 +123,11 @@ export const updateCategoryAction: (
           updatedAt: updatedCategory.updatedAt.toString(),
         },
       },
-    })
+    });
 
-    return response
+    return response;
   } catch (err) {
-    const error = Response.error(err)
-    return error
+    const error = Response.error(err);
+    return error;
   }
-}
+};

@@ -62,7 +62,9 @@ export type IProductModel = Model<IProductSchema, {}, {}>;
 export interface ICustomerSchema extends timeStamps {
   username: string;
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
+  mobileNo: number;
 }
 
 export type ICustomerModel = Model<ICustomerSchema, {}, {}>;
