@@ -30,6 +30,7 @@ import { uiActions } from '@/lib/redux/features/uiSlice';
 import ProductForm from '../forms/ProductForm/ProductForm.component';
 import { removeProductAction } from '@/lib/actions/product.action';
 import { productActions } from '@/lib/redux/features/productSlice';
+import { useRouter } from 'next/navigation';
 
 interface NewActionButtonProps {
   title: FORMTYPES;
@@ -170,10 +171,12 @@ export const DeleteActionButton: CTEditDeleteBtnCP = ({
 
 export const LogOutBtn = () => {
   const dispatch = useAppDispatch();
+  const router = useRouter();
 
   const logoutHandler = async () => {
     dispatch(authActions.logOut());
     await logOut();
+    router.replace('/login');
   };
 
   return (

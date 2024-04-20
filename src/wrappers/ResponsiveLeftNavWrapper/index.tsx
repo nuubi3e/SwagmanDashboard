@@ -1,23 +1,23 @@
-'use client'
-import { useAppSelector, useAppDispatch } from '@/lib/redux/hook'
-import { uiActions } from '@/lib/redux/features/uiSlice'
-import { AnimatePresence, motion as m } from 'framer-motion'
+'use client';
+import { useAppSelector, useAppDispatch } from '@/lib/redux/hook';
+import { uiActions } from '@/lib/redux/features/uiSlice';
+import { AnimatePresence, motion as m } from 'framer-motion';
 
-import React, { ReactNode, useEffect, useState } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react';
 
 const ResponsiveLeftNavWrapper = ({ children }: { children: ReactNode }) => {
-  const ui = useAppSelector((st) => st.ui)
-  const dispatch = useAppDispatch()
-  const [width, setWidth] = useState(document.documentElement.clientWidth)
+  const ui = useAppSelector((st) => st.ui);
+  const dispatch = useAppDispatch();
+  const [width, setWidth] = useState(document.documentElement.clientWidth);
 
   useEffect(() => {
-    const resizeHandler = () => setWidth(document.documentElement.clientWidth)
-    window.addEventListener('resize', resizeHandler)
+    const resizeHandler = () => setWidth(document.documentElement.clientWidth);
+    window.addEventListener('resize', resizeHandler);
 
     return () => {
-      window.removeEventListener('resize', resizeHandler)
-    }
-  }, [])
+      window.removeEventListener('resize', resizeHandler);
+    };
+  }, []);
 
   return (
     <AnimatePresence mode='wait'>
@@ -51,7 +51,7 @@ const ResponsiveLeftNavWrapper = ({ children }: { children: ReactNode }) => {
         </m.section>
       ) : null}
     </AnimatePresence>
-  )
-}
+  );
+};
 
-export default ResponsiveLeftNavWrapper
+export default ResponsiveLeftNavWrapper;

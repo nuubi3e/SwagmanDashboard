@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { IUserSession } from '@/lib/types/global.types';
 import RoleModel from '@/lib/schemas/role.schema';
-import { connectToDB, disconnectFromDB } from '@/lib/server/db';
+import { connectToDB } from '@/lib/server/db';
 import UserModel from '@/lib/schemas/user.schema';
 
 export const GET = async (req: NextRequest) => {
