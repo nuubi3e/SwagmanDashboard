@@ -14,11 +14,6 @@ interface ProductPayload {
   quantity: number;
 }
 
-interface OrderPayload {
-  products: ProductPayload[];
-  orderId: string;
-}
-
 export const GET = async (req: NextRequest) => {
   try {
     const orderId = req.nextUrl.searchParams.get('order');
@@ -39,7 +34,7 @@ export const GET = async (req: NextRequest) => {
       const order = await OrderModel.findOne({
         _id: orderId,
         status: 'inCart',
-      });
+      }).select('-createdAt -updatedAt -__v');
 
       response = Response.success({
         message: order
@@ -48,6 +43,7 @@ export const GET = async (req: NextRequest) => {
         data: {
           items: order?.products || [],
           length: order?.products.length || 0,
+          order: order || undefined,
         },
         statusCode: 200,
       });
@@ -78,28 +74,54 @@ export const GET = async (req: NextRequest) => {
   }
 };
 
+interface OrderPayload {
+  products: ProductPayload[];
+  orderId: string;
+}
+
 export const POST = async (req: NextRequest) => {
   try {
     const payload = (await req.json()) as OrderPayload;
-    await connectToDB();
 
     const isFirstTime = payload?.orderId ? false : true;
 
     const header = req.headers.get('Authorization') || '';
 
-    if (!payload.products || payload.products.length === 0)
+    // If there is no products or products is empty then its an invalid request
+    if (!payload.products)
       throw new ServerError('Please provide products to place a order', 404);
 
     const decodedToken = jwt.verify(header, process.env.JWT_SECRET!) as {
       id: string;
     };
 
+    const productsLength = payload.products.length;
+
+    await connectToDB();
+
+    // if products is empty then we remove the order of the user
+    if (productsLength === 0 && !isFirstTime) {
+      await OrderModel.findOneAndDelete({
+        userId: decodedToken.id,
+        status: 'inCart',
+        _id: payload.orderId,
+      });
+
+      const response = Response.success({
+        message: 'Order Removed Successfully',
+        data: { id: null },
+        statusCode: 200,
+      });
+
+      return NextResponse.json(response, { status: response.statusCode });
+    }
+
     let order;
     let totalAmount: number = 0;
     const products: ProductOrderInfo[] = [];
 
     // CODE to calculate product price and total price based on quantity and product id coming from client
-    for (let i = 0; i < payload.products.length; i++) {
+    for (let i = 0; i < productsLength; i++) {
       const product = payload.products[i];
 
       let productInDB:
